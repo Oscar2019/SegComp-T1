@@ -4,27 +4,75 @@
 #include <algorithm>
 #include <string_view>
 #include <cctype>
+#include <cstring>
  
-
-
 using namespace std;
+
+void vigenere(string& message, string& key, int (*cript)(int, int)){
+    int messageSize = message.size();
+    int keySize = key.size();
+    
+    for(int i = 0, j = 0; i < messageSize; i++){
+
+        int k = j % keySize;
+        // j++;
+
+        if(!isalpha(message[i])){
+            continue;
+        }
+        
+        j++;
+
+        bool isUpper = isupper(message[i]) != 0;
+
+        if(isUpper){
+            message[i] = tolower(message[i]);
+        }
+ 
+        message[i] = cript(message[i], key[k]);
+
+        if(isUpper){
+            message[i] = toupper(message[i]);
+        }
+    }
+}
+
+int encript(int character, int key){
+    return (character - 'a' + key - 'a') % 26 + 'a';
+}
+
+int decript(int character, int key){
+    // return (character - 'a' - key + 'a') % 26 + 'a';
+    return (character - key) % 26 + 'a';
+}
 
 int main(int argc, char *argv[]){
 
     ifstream fileInput;
     ifstream keyInput;
     ofstream fileOutput;
+    bool hasEncript = true;
+    bool hasDencript = false;
+    bool hasOutput = false;
 
     int state = 0;
-    for(int i = 1; i < argc; ){
-        cout << argv[i] << endl;
+    for(int i = 1; i < argc; i++){
+        // cout << argv[i] << endl;
         if(state == 0){
-            if(argv[i] == "-i"){
+            if(strcmp(argv[i], "-i") == 0){
                 state = 1;
-            } else if(argv[i] == "-o"){
+            } else if(strcmp(argv[i], "-o") == 0){
                 state = 2;
-            } else if(argv[i] == "-k"){
+            } else if(strcmp(argv[i], "-k") == 0){
                 state = 3;
+            } else if(strcmp(argv[i], "-e") == 0){
+                state = 0;
+                hasEncript = true;
+                hasDencript = false;
+            } else if(strcmp(argv[i], "-d") == 0){
+                state = 0;
+                hasEncript = false;
+                hasDencript = true;
             }
         } else if(state == 1){
             fileInput.open(argv[i]);
@@ -38,6 +86,8 @@ int main(int argc, char *argv[]){
             if(!fileOutput.is_open()){
                 cout << "Nao foi possível abrir o arquivo!\n";
                 exit(1);
+            } else{
+                hasOutput = true;
             }
             state = 0;
         } else if(state == 3){
@@ -52,16 +102,31 @@ int main(int argc, char *argv[]){
 
 
     string message;
-    copy_if((istreambuf_iterator<char>(fileInput)), std::istreambuf_iterator<char>(), back_inserter(fileInput), [](auto c){
-        if
+    copy((istreambuf_iterator<char>(fileInput)), std::istreambuf_iterator<char>(), back_inserter(message));
+    fileInput.close();
+    
+    string key;
+    copy_if((istreambuf_iterator<char>(keyInput)), std::istreambuf_iterator<char>(), back_inserter(key), [](char c){
+        return isalpha(c);
     });
-    // string message((istreambuf_iterator<char>(fileInput)), std::istreambuf_iterator<char>());
-    // message.erase(remove_if(message.begin(), message.end(), [](char c){
-    //     return !isalpha(c);
-    // }));
-    // transform(message.begin(), message.end(), back_inserter(message), [](char))
-    // string key((istreambuf_iterator<char>(keyInput)), std::istreambuf_iterator<char>());
+    keyInput.close();
+    transform(key.begin(), key.end(), key.begin(), ::tolower);
 
+    if(hasEncript){
+        vigenere(message, key, encript);
+    }
+
+    if(hasDencript){
+        vigenere(message, key, decript);
+    }
+
+    if(hasOutput){
+        fileOutput << message;
+        fileOutput.close();
+    } else{
+        cout << message << "\n";
+    }
+    
 
     return 0;
 }
