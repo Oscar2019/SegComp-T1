@@ -5,6 +5,7 @@
 #include <string_view>
 #include <cctype>
 #include <cstring>
+#include <map>
  
 using namespace std;
 
@@ -114,6 +115,25 @@ int main(int argc, char *argv[]){
 
     if(hasEncript){
         vigenere(message, key, encript);
+        map<string, int> mapa;
+        string str;
+        string str2; 
+        vector<pair<string, int>> vet;
+        for(int i = 0; i < message.size(); i++){
+            if(isalpha(message[i])){
+                str.push_back(tolower(message[i]));
+            }
+        }
+        for(int i = 0; i < str.size()-2; i++){
+            str2 = str.substr(i, 3);
+            if(mapa.count(str2)){
+                vet.emplace_back(str2, i - mapa[str2]);
+            }
+            mapa[str2] = i;
+        }
+        for(int i = 0; i < vet.size(); i++){
+            cout << vet[i].first << " " << vet[i].second << "\n";
+        }
     }
 
     if(hasDencript){
