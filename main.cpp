@@ -104,6 +104,7 @@ void calculaHistogramaPorCent(string& message, int ini, int keySize, vector<floa
     for(int i = ini; i < messageSize; i += keySize){
 
         if(!isalpha(message[i])){
+            i++;
             continue;
         }
         
@@ -111,41 +112,43 @@ void calculaHistogramaPorCent(string& message, int ini, int keySize, vector<floa
         qtd++;
     }
     for(int i = 0; i < 26; i++){
-        out[i] *= 100/qtd;
+        // out[i] *= 100/qtd;
+        out[i] *= 100;
+        out[i] /= qtd;
     }
 }
 
 char melhorLetra(const vector<float>& histograma1, const vector<float>& histograma2){
-    // float val = 0;
-    // char letra = 'a';
-    // for(int i = 0; i < 26; i++){
-    //     float aux = 0;
-    //     for(int j = 0; j < 26; j++){
-    //         aux += histograma1[j] * histograma2[(j + i) % 26];
-    //     }
-    //     if(aux > val){
-    //         val = aux;
-    //         letra = 'a' + i;
-    //     }
-    // }
-    // return letra;
-    float val = std::numeric_limits<float>::max();;
+    float val = 0;
     char letra = 'a';
     for(int i = 0; i < 26; i++){
         float aux = 0;
         for(int j = 0; j < 26; j++){
-            aux += abs(histograma1[j] - histograma2[(j + i) % 26]);
+            aux += histograma1[j] * histograma2[(j + i) % 26];
         }
-        if(aux < val){
+        if(aux > val){
             val = aux;
             letra = 'a' + i;
         }
     }
     return letra;
+    // float val = std::numeric_limits<float>::max();;
+    // char letra = 'a';
+    // for(int i = 0; i < 26; i++){
+    //     float aux = 0;
+    //     for(int j = 0; j < 26; j++){
+    //         aux += abs(histograma1[j] - histograma2[(j + i) % 26]);
+    //     }
+    //     if(aux < val){
+    //         val = aux;
+    //         letra = 'a' + i;
+    //     }
+    // }
+    // return letra;
 }  
 
 void melhorChave(string& message, int keySize, string &strOut, const vector<float>& histogramaEscolhido){
-    cout << "oi " << keySize << "\n";
+    
     strOut.resize(keySize);
     for(int i = 0; i < keySize; i++){
 
